@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemini-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gemini
+  template:
+    metadata:
+      labels:
+        app: gemini
+    spec:
+      containers:
+      - name: gemini-container
+        image: gemini-fullstack-langgraph:latest
+        # for local instances use imagePullPolicy: Never, else remove it
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: gemini-secrets
+              key: gemini-api-key
+        - name: LANGSMITH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: gemini-secrets
+              key: langsmith-api-key
+        - name: REDIS_URI
+          value: redis://gemini-redis:6379
+        - name: POSTGRES_URI
+          value: postgres://postgres:postgres@gemini-postgres:5432/postgres?sslmode=disable
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m" 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gemini-app-service
+spec:
+  selector:
+    app: gemini
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer

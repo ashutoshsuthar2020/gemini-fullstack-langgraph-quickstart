@@ -102,4 +102,4 @@ kubectl delete -f k8s/
 
 **Note:**  
 - The default setup serves both frontend and backend from the same container and port (8000).
-- If you want to change the backend port, update both the deployment and service YAMLs, and ensure your frontend calls the correct port. 
+- If you want to change the backend port, update both the deployment and service YAMLs, and ensure your frontend calls the correct port.
